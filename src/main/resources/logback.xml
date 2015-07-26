@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+A logging request is said to be enabled if its level is higher than or equal to
+the effective level of its logger. Otherwise, the request is said to be disabled.
+
+This rule is summarized below:
+
+	A log request of level p issued to a logger having an effective level q, is enabled if p >= q.
+
+
+This rule is at the heart of logback. It assumes that levels are ordered as follows: 
+		
+	TRACE  <  DEBUG  <  INFO  <  WARN  <  ERROR  <  OFF
+
+
+In a more graphic way:
+	
+	 p \ q ! TRACE < DEBUG < INFO < WARN < ERROR < OFF !
+	TRACE  !  YES      -      -      -       -      -  !
+	DEBUG  !  YES     YES     -      -       -      -  !
+	INFO   !  YES     YES    YES     -       -      -  !
+	WARN   !  YES     YES    YES    YES      -      -  !
+	ERROR  !  YES     YES    YES    YES     YES     -  !
+
+A logger without an assigned level will inherit one from its nearest ancestor.
+@see http://logback.qos.ch/manual/architecture.html#basic_selection
+-->
+
+<!-- 
+	Ternary logic values for the onMatch and onMismatch elements of filters are:
+	DENY:    drop the logEvent immediately without consulting the remaining filters
+	NEUTRAL: pass the logEvent to the next filter or the appender [default]
+	ACCEPT:  accept the logEvent immediately skipping the remaining filters
+	
+	@see http://logback.qos.ch/manual/filters.html
+-->
+
+<configuration debug="false" scan="false" scanPeriod="10 seconds">
+	
+	<appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<!-- %caller{N, DISPLAY_CALLER} display N lines of stacktrace -->
+			<pattern>%d{HH:mm:ss.SSS} [%-5level] %60(%logger{50}:%line) - %message%n</pattern>
+		</encoder>
+	</appender>
+
+
+
+	<!-- SQL -->
+	<!-- If the java.sql.Connection logger is set to everything but debug
+	 then none of the other java.sql.xxx logger will print anything.
+	 This can be used as a quick switch. -->
+	<logger name="java.sql.Connection" level="info" />
+	<logger name="java.sql.Statement" level="info" />
+	<logger name="java.sql.PreparedStatement" level="debug" />
+	<logger name="java.sql.ResultSet" level="debug" />
+	
+	
+	<logger name="org.springframework" level="info" />
+	<logger name="org.springframework.core" level="info" />
+	<logger name="org.springframework.beans" level="info" />
+	<logger name="org.springframework.context" level="debug" />
+	<logger name="org.springframework.context.support.ReloadableResourceBundleMessageSource" level="info" />
+	<logger name="org.springframework.web" level="debug" />
+	<logger name="org.springframework.jdbc" level="info" />
+	<logger name="org.springframework.orm" level="info" />
+	
+	
+	<logger name="org.apache.commons.beanutils.ConvertUtils" level="info" />
+	<logger name="org.apache.commons.beanutils.converters" level="info" />
+
+
+	<root level="all">
+		<appender-ref ref="Console" />
+	</root>
+	
+</configuration>
